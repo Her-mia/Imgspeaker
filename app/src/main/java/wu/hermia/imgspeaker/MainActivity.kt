@@ -13,6 +13,10 @@ import wu.hermia.imgspeaker.ui.theme.ImgspeakerTheme
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.ui.unit.dp
 
 class MainActivity : ComponentActivity() {
@@ -22,7 +26,38 @@ class MainActivity : ComponentActivity() {
         setContent {
             ImgspeakerTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ImageView(modifier = Modifier.padding(innerPadding))
+                    MyApp(
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .fillMaxSize()
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun MyApp(modifier: Modifier = Modifier) {
+    Column (modifier = modifier.fillMaxSize()) {
+        ImageView()
+        Surface(
+            color = MaterialTheme.colorScheme.primary,
+            modifier = modifier
+                .padding(vertical = 4.dp, horizontal = 8.dp)
+                .wrapContentSize()
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(10.dp)
+                    .fillMaxWidth()
+                    .height(54.dp)
+            ) {
+                ElevatedButton(onClick = { }) {
+                    Text("Camera")
+                }
+                ElevatedButton(onClick = { }) {
+                    Text("Read")
                 }
             }
         }
@@ -31,14 +66,17 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
-fun ImageView(modifier: Modifier=Modifier) {
+fun ImageView(modifier: Modifier = Modifier) {
     val imageModifier = Modifier
         .size(150.dp)
+
     val image = painterResource(R.drawable.typewriter)
     Image(
         painter = image,
         contentDescription = null,
-        modifier = Modifier)}
+        modifier = Modifier
+    )
+}
 
 @Preview(showBackground = true)
 @Composable
