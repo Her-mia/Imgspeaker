@@ -1,7 +1,6 @@
 package wu.hermia.imgspeaker
 
 import android.os.Bundle
-import android.widget.ImageView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -17,6 +16,8 @@ import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 
 class MainActivity : ComponentActivity() {
@@ -39,19 +40,25 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MyApp(modifier: Modifier = Modifier) {
-    Column (modifier = modifier.fillMaxSize()) {
-        ImageView()
+    Column(modifier) {
+        MyImageView(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        )
         Surface(
             color = MaterialTheme.colorScheme.primary,
-            modifier = modifier
-                .padding(vertical = 4.dp, horizontal = 8.dp)
-                .wrapContentSize()
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
         ) {
             Row(
                 modifier = Modifier
-                    .padding(10.dp)
+                    .padding(vertical = 8.dp, horizontal = 8.dp)
                     .fillMaxWidth()
-                    .height(54.dp)
+                    .height(72.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 ElevatedButton(onClick = { }) {
                     Text("Camera")
@@ -64,17 +71,14 @@ fun MyApp(modifier: Modifier = Modifier) {
     }
 }
 
-
 @Composable
-fun ImageView(modifier: Modifier = Modifier) {
-    val imageModifier = Modifier
-        .size(150.dp)
-
+fun MyImageView(modifier: Modifier = Modifier) {
     val image = painterResource(R.drawable.typewriter)
     Image(
         painter = image,
         contentDescription = null,
-        modifier = Modifier
+        modifier = modifier,
+        contentScale = ContentScale.Crop
     )
 }
 
@@ -82,6 +86,12 @@ fun ImageView(modifier: Modifier = Modifier) {
 @Composable
 fun GreetingPreview() {
     ImgspeakerTheme {
-        ImageView()
+        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+            MyApp(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize()
+            )
+        }
     }
 }
