@@ -1,6 +1,10 @@
 package wu.hermia.imgspeaker
 
+import android.content.ContentValues
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -18,9 +22,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 
+
 class MainActivity : ComponentActivity() {
+
+    private var imageUri: Uri? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -36,7 +45,25 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    val REQUEST_IMAGE_CAPTURE = 101
+
+
+    public fun dispatchTakePictureIntent() {
+        imageUri = null
+        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        if (takePictureIntent.resolveActivity(packageManager) != null) {
+            val values = ContentValues()
+            values.put(MediaStore.Images.Media.TITLE, "New Picture")
+            values.put(MediaStore.Images.Media.DESCRIPTION, "From Camera")
+            imageUri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+        }
+
+    }
 }
+
 
 @Composable
 fun MyApp(modifier: Modifier = Modifier) {
@@ -60,7 +87,11 @@ fun MyApp(modifier: Modifier = Modifier) {
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                ElevatedButton(onClick = { }) {
+                val context = LocalContext.current
+                val activity = context as? MainActivity
+                ElevatedButton(onClick = {
+                    activity?.dispatchTakePictureIntent()
+                }) {
                     Text("Camera")
                 }
                 ElevatedButton(onClick = { }) {
@@ -81,6 +112,7 @@ fun MyImageView(modifier: Modifier = Modifier) {
         contentScale = ContentScale.Crop
     )
 }
+
 
 @Preview(showBackground = true)
 @Composable
