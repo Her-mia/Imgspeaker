@@ -1,17 +1,17 @@
 package wu.hermia.imgspeaker
 
 import android.content.ContentValues
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import wu.hermia.imgspeaker.ui.theme.ImgspeakerTheme
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.Image
@@ -20,15 +20,17 @@ import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-
+import coil.compose.rememberAsyncImagePainter
 
 class MainActivity : ComponentActivity() {
-
-    private var imageUri: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,33 +47,42 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-    val REQUEST_IMAGE_CAPTURE = 101
-
-
-    public fun dispatchTakePictureIntent() {
-        imageUri = null
-        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        if (takePictureIntent.resolveActivity(packageManager) != null) {
-            val values = ContentValues()
-            values.put(MediaStore.Images.Media.TITLE, "New Picture")
-            values.put(MediaStore.Images.Media.DESCRIPTION, "From Camera")
-            imageUri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
-            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
-        }
-
-    }
 }
 
 
 @Composable
 fun MyApp(modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    fun createImageUri(): Uri? {
+        val contentValues = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME, "camera_demo_${System.currentTimeMillis()}.jpg")
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+        }
+        return context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+    }
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    var tmpUri: Uri? = null // 普通变量，不会驱动 UI
+    var image = painterResource(R.drawable.typewriter)
+    val cameraLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            imageUri = tmpUri // 只有成功后才赋值，才会重绘
+        }
+    }
+    imageUri?.let { uri ->
+        println(uri)
+        image = rememberAsyncImagePainter(uri)
+    }
+
     Column(modifier) {
-        MyImageView(
+        Image(
+            painter = image,
+            contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
+                .weight(1f),
+            contentScale = ContentScale.FillBounds
         )
         Surface(
             color = MaterialTheme.colorScheme.primary,
@@ -87,10 +98,11 @@ fun MyApp(modifier: Modifier = Modifier) {
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val context = LocalContext.current
-                val activity = context as? MainActivity
                 ElevatedButton(onClick = {
-                    activity?.dispatchTakePictureIntent()
+                    tmpUri = createImageUri()
+                    tmpUri?.let { uri ->
+                        cameraLauncher.launch(uri)
+                    }
                 }) {
                     Text("Camera")
                 }
@@ -98,32 +110,6 @@ fun MyApp(modifier: Modifier = Modifier) {
                     Text("Read")
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun MyImageView(modifier: Modifier = Modifier) {
-    val image = painterResource(R.drawable.typewriter)
-    Image(
-        painter = image,
-        contentDescription = null,
-        modifier = modifier,
-        contentScale = ContentScale.Crop
-    )
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ImgspeakerTheme {
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-            MyApp(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize()
-            )
         }
     }
 }
