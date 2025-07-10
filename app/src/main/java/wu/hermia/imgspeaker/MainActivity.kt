@@ -1,9 +1,12 @@
 package wu.hermia.imgspeaker
 
 import android.content.ContentValues
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
+import android.util.Pair
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -55,19 +58,37 @@ fun MyApp(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     fun createImageUri(): Uri? {
         val contentValues = ContentValues().apply {
-            put(MediaStore.Images.Media.DISPLAY_NAME, "camera_demo_${System.currentTimeMillis()}.jpg")
+            put(
+                MediaStore.Images.Media.DISPLAY_NAME,
+                "camera_demo_${System.currentTimeMillis()}.jpg"
+            )
             put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
         }
-        return context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+        return context.contentResolver.insert(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            contentValues
+        )
     }
+
+    fun createImageProcessor() {
+        var imageProcessor: VisionImageProcessor? = null
+        try {
+            imageProcessor =
+                TextRecognitionProcessor(
+                    this,
+                    ChineseTextRecognizerOptions.Builder().build()
+                )
+        }
+    }
+
     var imageUri by remember { mutableStateOf<Uri?>(null) }
-    var tmpUri: Uri? = null // 普通变量，不会驱动 UI
+    var tmpUri: Uri? = null
     var image = painterResource(R.drawable.typewriter)
     val cameraLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.TakePicture()
     ) { success ->
         if (success) {
-            imageUri = tmpUri // 只有成功后才赋值，才会重绘
+            imageUri = tmpUri
         }
     }
     imageUri?.let { uri ->
