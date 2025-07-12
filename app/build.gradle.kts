@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation(libs.play.services.mlkit.text.recognition.common)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.util.Pair
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -70,14 +71,23 @@ fun MyApp(modifier: Modifier = Modifier) {
         )
     }
 
+    var imageProcessor: VisionImageProcessor? = null
     fun createImageProcessor() {
-        var imageProcessor: VisionImageProcessor? = null
         try {
             imageProcessor =
                 TextRecognitionProcessor(
                     this,
                     ChineseTextRecognizerOptions.Builder().build()
                 )
+            catch (e: Exception) {
+                Log.e(TAG, "Can not create image processor: $selectedMode", e)
+                Toast.makeText(
+                    applicationContext,
+                    "Can not create image processor: " + e.message,
+                    Toast.LENGTH_LONG
+                )
+                    .show()
+            }
         }
     }
 
@@ -123,6 +133,16 @@ fun MyApp(modifier: Modifier = Modifier) {
                     tmpUri = createImageUri()
                     tmpUri?.let { uri ->
                         cameraLauncher.launch(uri)
+                        if (imageProcessor != null) {
+                            graphicOverlay!!.setImageSourceInfo(
+                                resizedBitmap.width,
+                                resizedBitmap.height,
+                                /* isFlipped= */ false
+                            )
+                            imageProcessor!!.processBitmap(resizedBitmap, graphicOverlay)
+                        } else {
+                            Log.e(TAG, "Null imageProcessor, please check adb logs for imageProcessor creation error")
+                        }
                     }
                 }) {
                     Text("Camera")
