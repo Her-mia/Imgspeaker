@@ -133,16 +133,7 @@ fun MyApp(modifier: Modifier = Modifier) {
                     tmpUri = createImageUri()
                     tmpUri?.let { uri ->
                         cameraLauncher.launch(uri)
-                        if (imageProcessor != null) {
-                            graphicOverlay!!.setImageSourceInfo(
-                                resizedBitmap.width,
-                                resizedBitmap.height,
-                                /* isFlipped= */ false
-                            )
-                            imageProcessor!!.processBitmap(resizedBitmap, graphicOverlay)
-                        } else {
-                            Log.e(TAG, "Null imageProcessor, please check adb logs for imageProcessor creation error")
-                        }
+
                     }
                 }) {
                     Text("Camera")
