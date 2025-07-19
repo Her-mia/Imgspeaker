@@ -71,13 +71,13 @@ fun MyApp(modifier: Modifier = Modifier) {
         )
     }
 
-    var imageProcessor: VisionImageProcessor? = null
     fun createImageProcessor() {
         try {
             imageProcessor =
                 TextRecognitionProcessor(
                     this,
                     ChineseTextRecognizerOptions.Builder().build()
+
                 )
             catch (e: Exception) {
                 Log.e(TAG, "Can not create image processor: $selectedMode", e)
