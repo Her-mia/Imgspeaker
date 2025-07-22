@@ -72,6 +72,21 @@ fun MyApp(modifier: Modifier = Modifier) {
         )
     }
 
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    var tmpUri: Uri? = null
+    var image = painterResource(R.drawable.typewriter)
+    val cameraLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            imageUri = tmpUri
+        }
+    }
+    imageUri?.let { uri ->
+        println(uri)
+        image = rememberAsyncImagePainter(uri)
+    }
+
 
     fun runTextRecognition() {
         val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
@@ -108,20 +123,6 @@ fun MyApp(modifier: Modifier = Modifier) {
 
 
 
-    var imageUri by remember { mutableStateOf<Uri?>(null) }
-    var tmpUri: Uri? = null
-    var image = painterResource(R.drawable.typewriter)
-    val cameraLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.TakePicture()
-    ) { success ->
-        if (success) {
-            imageUri = tmpUri
-        }
-    }
-    imageUri?.let { uri ->
-        println(uri)
-        image = rememberAsyncImagePainter(uri)
-    }
 
     Column(modifier) {
         Image(

@@ -45,7 +45,7 @@ class GraphicOverlay(context: Context?, attrs: AttributeSet?) :
      * this and implement the [Graphic.draw] method to define the graphics element. Add
      * instances to the overlay using [GraphicOverlay.add].
      */
-    abstract class Graphic(private val overlay: GraphicOverlay?) {
+    abstract class Graphic(private val overlay: GraphicOverlay) {
         /**
          * Draw the graphic on the supplied canvas. Drawing should use the following methods to convert
          * to view coordinates for the graphics that are drawn:
@@ -66,27 +66,27 @@ class GraphicOverlay(context: Context?, attrs: AttributeSet?) :
          * Adjusts a horizontal value of the supplied value from the preview scale to the view scale.
          */
         fun scaleX(horizontal: Float): Float {
-            return horizontal * (overlay!!.widthScaleFactor)
+            return horizontal * (overlay.widthScaleFactor)
         }
 
         /**
          * Adjusts a vertical value of the supplied value from the preview scale to the view scale.
          */
         fun scaleY(vertical: Float): Float {
-            return vertical * overlay!!.heightScaleFactor
+            return vertical * overlay.heightScaleFactor
         }
 
         val applicationContext: Context
             /**
              * Returns the application context of the app.
              */
-            get() = overlay!!.context.applicationContext
+            get() = overlay.context.applicationContext
 
         /**
          * Adjusts the x coordinate from the preview's coordinate system to the view coordinate system.
          */
         fun translateX(x: Float): Float {
-            return if (overlay!!.facing == CameraCharacteristics.LENS_FACING_FRONT) {
+            return if (overlay.facing == CameraCharacteristics.LENS_FACING_FRONT) {
                 overlay.width - scaleX(x)
             } else {
                 scaleX(x)

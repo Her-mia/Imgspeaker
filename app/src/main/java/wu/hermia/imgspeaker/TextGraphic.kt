@@ -13,8 +13,8 @@ import com.google.mlkit.vision.text.Text
  * Graphic instance for rendering TextBlock position, size, and ID within an associated graphic
  * overlay view.
  */
-class TextGraphic internal constructor(
-    overlay: GraphicOverlay?,
+abstract class TextGraphic internal constructor(
+    overlay: GraphicOverlay,
     private val element: Text.Element
 ) :
     Graphic(overlay = overlay) {
