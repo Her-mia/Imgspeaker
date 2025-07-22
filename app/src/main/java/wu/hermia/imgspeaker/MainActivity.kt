@@ -5,34 +5,35 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
-import android.util.Pair
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import wu.hermia.imgspeaker.ui.theme.ImgspeakerTheme
-import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.Text
+import com.google.mlkit.vision.text.TextRecognition
+import wu.hermia.imgspeaker.ui.theme.ImgspeakerTheme
+
 
 class MainActivity : ComponentActivity() {
 
@@ -71,25 +72,41 @@ fun MyApp(modifier: Modifier = Modifier) {
         )
     }
 
-    fun createImageProcessor() {
-        try {
-            imageProcessor =
-                TextRecognitionProcessor(
-                    this,
-                    ChineseTextRecognizerOptions.Builder().build()
 
-                )
-            catch (e: Exception) {
-                Log.e(TAG, "Can not create image processor: $selectedMode", e)
-                Toast.makeText(
-                    applicationContext,
-                    "Can not create image processor: " + e.message,
-                    Toast.LENGTH_LONG
-                )
-                    .show()
+    fun runTextRecognition() {
+        val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+        mTextButton.setEnabled(false)
+        recognizer.process(image)
+            .addOnSuccessListener { texts ->
+                mTextButton.setEnabled(true)
+                processTextRecognitionResult(texts)
+            }
+            .addOnFailureListener { e -> // Task failed with an exception
+                mTextButton.setEnabled(true)
+                e.printStackTrace()
+            }
+    }
+
+    fun processTextRecognitionResult(texts: Text) {
+        val blocks = texts.textBlocks
+        if (blocks.size == 0) {
+            showToast("No text found")
+            return
+        }
+        mGraphicOverlay.clear()
+        for (i in blocks.indices) {
+            val lines = blocks[i].lines
+            for (j in lines.indices) {
+                val elements = lines[j].elements
+                for (k in elements.indices) {
+                    val textGraphic: Graphic = TextGraphic(mGraphicOverlay, elements[k])
+                    mGraphicOverlay.add(textGraphic)
+                }
             }
         }
     }
+
+
 
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var tmpUri: Uri? = null
