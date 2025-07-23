@@ -4,6 +4,7 @@ import android.graphics.Canvas
 import android.hardware.camera2.CameraCharacteristics
 import android.util.AttributeSet
 import android.view.View
+import wu.hermia.imgspeaker.TextGraphic
 
 
 /**
@@ -118,7 +119,7 @@ class GraphicOverlay(context: Context?, attrs: AttributeSet?) :
     /**
      * Adds a graphic to the overlay.
      */
-    fun add(graphic: Graphic) {
+    fun add(graphic: GraphicOverlay.Graphic) {
         synchronized(lock) {
             graphics.add(graphic)
         }

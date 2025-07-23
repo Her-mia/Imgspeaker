@@ -13,7 +13,7 @@ import com.google.mlkit.vision.text.Text
  * Graphic instance for rendering TextBlock position, size, and ID within an associated graphic
  * overlay view.
  */
-abstract class TextGraphic internal constructor(
+class TextGraphic internal constructor(
     overlay: GraphicOverlay,
     private val element: Text.Element
 ) :
@@ -36,7 +36,7 @@ abstract class TextGraphic internal constructor(
     /**
      * Draws the text block annotations for position, size, and raw value on the supplied canvas.
      */
-    fun draw(canvas: Canvas) {
+    fun drawCanvas(canvas: Canvas) {
         Log.d(TAG, "on draw text graphic")
         checkNotNull(element) { "Attempting to draw a null text." }
 
@@ -53,5 +53,9 @@ abstract class TextGraphic internal constructor(
         private const val TEXT_COLOR = Color.RED
         private const val TEXT_SIZE = 54.0f
         private const val STROKE_WIDTH = 4.0f
+    }
+
+    override fun draw(canvas: Canvas?) {
+
     }
 }
