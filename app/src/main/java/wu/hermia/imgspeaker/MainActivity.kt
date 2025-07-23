@@ -12,6 +12,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme
@@ -25,17 +26,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PaintingStyle.Companion.Stroke
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
 import coil.compose.rememberAsyncImagePainter
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
@@ -112,10 +122,43 @@ fun MyApp(modifier: Modifier = Modifier) {
                 contentScale = ContentScale.FillBounds
             )
             Canvas(
-                modifier = Modifier.fillMaxSize()
-            ) {translate(left = 350f, top = 550f) {
-                drawText(textMeasurer, "Hello")}
-            }
+                modifier = Modifier
+                    .fillMaxSize()){val layoutResult = textMeasurer.measure(
+                text = AnnotatedString("Hello!"),
+            )
+
+                val topLeft = Offset(350f, 550f)
+                val textSize = layoutResult.size.toSize()
+
+                // 绘制矩形边框
+                drawRect(
+                    color = Color.Blue,
+                    topLeft = topLeft,
+                    size = Size(
+                        width = textSize.width + 30f * 2,
+                        height = textSize.height + 30f * 2),
+                    style = Stroke(width = 3f)
+                )
+
+                // 绘制文字
+                drawText(
+                    textLayoutResult = layoutResult,
+                    color = Color.Blue,
+                    topLeft = topLeft)}
+//                    .drawWithCache {
+//                        val path = Path()
+//                        path.moveTo(350f, 550f)
+//                        path.lineTo(350f, 600f)
+//                        path.lineTo(450f, 600f)
+//                        path.lineTo(450f,550f)
+//                        path.close()
+//                        onDrawBehind {
+//                            drawPath(path, Color.Blue, style = Stroke(width = 2f))
+//                        }
+//                    }
+//            ) {translate(left = 350f, top = 550f) {
+//                drawText(textMeasurer, "Hello")}
+//            }
         }
 
         Surface(
