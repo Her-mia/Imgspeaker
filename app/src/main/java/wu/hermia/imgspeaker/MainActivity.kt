@@ -1,10 +1,10 @@
 package wu.hermia.imgspeaker
 
-import GraphicOverlay
 import android.content.ContentValues
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -12,7 +12,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme
@@ -26,20 +25,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle.Companion.Stroke
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.inset
-import androidx.compose.ui.graphics.drawscope.translate
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.drawText
@@ -47,11 +38,13 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import coil.compose.rememberAsyncImagePainter
+import com.google.android.gms.tasks.OnFailureListener
+import com.google.android.gms.tasks.OnSuccessListener
+import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import wu.hermia.imgspeaker.ui.theme.ImgspeakerTheme
-
 
 class MainActivity : ComponentActivity() {
 
@@ -91,6 +84,7 @@ fun MyApp(modifier: Modifier = Modifier) {
     }
 
     var imageUri by remember { mutableStateOf<Uri?>(null) }
+    var texts by remember { mutableStateOf<Text?>(null) }
     var tmpUri: Uri? = null
     var image = painterResource(R.drawable.typewriter)
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -103,7 +97,67 @@ fun MyApp(modifier: Modifier = Modifier) {
     imageUri?.let { uri ->
         println(uri)
         image = rememberAsyncImagePainter(uri)
+
+        fun processTextRecognitionResult(texts: Text) {
+            Log.e("processTextRecognitionResult", texts.toString())
+            val blocks = texts.textBlocks
+            for (i in blocks.indices) {
+                val lines = blocks[i].lines
+                for (j in lines.indices) {
+                    val elements = lines[j].elements
+                    for (k in elements.indices) {
+                        elements[k].text
+                    }
+                }
+            }
+        }
+
+
+        val inputImage = InputImage.fromFilePath(context, uri)
+        Log.e("uri", uri.toString())
+        Log.e("inputImage", inputImage.toString())
+        val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+        recognizer.process(inputImage)
+            .addOnSuccessListener {
+                OnSuccessListener<Text?> {
+                    texts ->
+                        Log.e("addOnSuccessListener", texts.toString())
+                        texts?.let { it1 -> processTextRecognitionResult(it1) }
+                    }
+                }.addOnFailureListener(
+                    OnFailureListener {
+                        e -> e.printStackTrace()
+                    }
+                )
+
     }
+
+//    fun processTextRecognitionResult(texts: Text) {
+//        Log.e("processTextRecognitionResult", texts.toString())
+//        val blocks = texts.textBlocks
+//        for (i in blocks.indices) {
+//            val lines = blocks[i].lines
+//            for (j in lines.indices) {
+//                val elements = lines[j].elements
+//                for (k in elements.indices) {
+//                    elements[k].text
+//                }
+//            }
+//        }
+//    }
+//
+//
+//    val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.typewriter)
+//    var inputImage = InputImage.fromBitmap(bitmap, 0)
+//    val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+//    recognizer.process(inputImage)
+//        .addOnSuccessListener {
+//            Log.e("addOnSuccessListener", texts.toString())
+//            texts?.let { it1 -> processTextRecognitionResult(it1) }
+//        }
+//
+//    Log.e("TextRecognition.getClient ", texts.toString())
+
 
 
     val textMeasurer = rememberTextMeasurer()
@@ -123,9 +177,11 @@ fun MyApp(modifier: Modifier = Modifier) {
             )
             Canvas(
                 modifier = Modifier
-                    .fillMaxSize()){val layoutResult = textMeasurer.measure(
-                text = AnnotatedString("Hello!"),
-            )
+                    .fillMaxSize()
+            ) {
+                val layoutResult = textMeasurer.measure(
+                    text = AnnotatedString("Hello!"),
+                )
 
                 val topLeft = Offset(350f, 550f)
                 val textSize = layoutResult.size.toSize()
@@ -136,7 +192,8 @@ fun MyApp(modifier: Modifier = Modifier) {
                     topLeft = topLeft,
                     size = Size(
                         width = textSize.width + 30f * 2,
-                        height = textSize.height + 30f * 2),
+                        height = textSize.height + 30f * 2
+                    ),
                     style = Stroke(width = 3f)
                 )
 
@@ -144,7 +201,9 @@ fun MyApp(modifier: Modifier = Modifier) {
                 drawText(
                     textLayoutResult = layoutResult,
                     color = Color.Blue,
-                    topLeft = topLeft)}
+                    topLeft = topLeft
+                )
+            }
 //                    .drawWithCache {
 //                        val path = Path()
 //                        path.moveTo(350f, 550f)
