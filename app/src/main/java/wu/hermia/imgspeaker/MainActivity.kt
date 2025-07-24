@@ -118,17 +118,14 @@ fun MyApp(modifier: Modifier = Modifier) {
         Log.e("inputImage", inputImage.toString())
         val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
         recognizer.process(inputImage)
-            .addOnSuccessListener {
-                OnSuccessListener<Text?> {
-                    texts ->
-                        Log.e("addOnSuccessListener", texts.toString())
-                        texts?.let { it1 -> processTextRecognitionResult(it1) }
-                    }
-                }.addOnFailureListener(
-                    OnFailureListener {
-                        e -> e.printStackTrace()
-                    }
-                )
+            .addOnSuccessListener { texts ->
+                Log.e("addOnSuccessListener", texts.toString())
+                texts?.let { it1 -> processTextRecognitionResult(it1) }
+
+            }
+            .addOnFailureListener { e ->
+                e.printStackTrace()
+            }
 
     }
 
@@ -157,7 +154,6 @@ fun MyApp(modifier: Modifier = Modifier) {
 //        }
 //
 //    Log.e("TextRecognition.getClient ", texts.toString())
-
 
 
     val textMeasurer = rememberTextMeasurer()
