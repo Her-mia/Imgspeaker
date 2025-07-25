@@ -1,6 +1,7 @@
 package wu.hermia.imgspeaker
 
 import android.content.ContentValues
+import android.graphics.RectF
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -12,7 +13,15 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -38,8 +47,6 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import coil.compose.rememberAsyncImagePainter
-import com.google.android.gms.tasks.OnFailureListener
-import com.google.android.gms.tasks.OnSuccessListener
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
@@ -84,7 +91,7 @@ fun MyApp(modifier: Modifier = Modifier) {
     }
 
     var imageUri by remember { mutableStateOf<Uri?>(null) }
-    var texts by remember { mutableStateOf<Text?>(null) }
+    var Texts by remember { mutableStateOf<Text?>(null) }
     var tmpUri: Uri? = null
     var image = painterResource(R.drawable.typewriter)
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -98,19 +105,19 @@ fun MyApp(modifier: Modifier = Modifier) {
         println(uri)
         image = rememberAsyncImagePainter(uri)
 
-        fun processTextRecognitionResult(texts: Text) {
-            Log.e("processTextRecognitionResult", texts.toString())
-            val blocks = texts.textBlocks
-            for (i in blocks.indices) {
-                val lines = blocks[i].lines
-                for (j in lines.indices) {
-                    val elements = lines[j].elements
-                    for (k in elements.indices) {
-                        elements[k].text
-                    }
-                }
-            }
-        }
+//        fun processTextRecognitionResult(texts: Text) {
+//            Log.e("processTextRecognitionResult", texts.toString())
+//            val blocks = texts.textBlocks
+//            for (i in blocks.indices) {
+//                val lines = blocks[i].lines
+//                for (j in lines.indices) {
+//                    val elements = lines[j].elements
+//                    for (k in elements.indices) {
+//                        elements[k].text
+//                    }
+//                }
+//            }
+//        }
 
 
         val inputImage = InputImage.fromFilePath(context, uri)
@@ -120,40 +127,13 @@ fun MyApp(modifier: Modifier = Modifier) {
         recognizer.process(inputImage)
             .addOnSuccessListener { texts ->
                 Log.e("addOnSuccessListener", texts.toString())
-                texts?.let { it1 -> processTextRecognitionResult(it1) }
-
+                Texts = texts
             }
             .addOnFailureListener { e ->
                 e.printStackTrace()
             }
 
     }
-
-//    fun processTextRecognitionResult(texts: Text) {
-//        Log.e("processTextRecognitionResult", texts.toString())
-//        val blocks = texts.textBlocks
-//        for (i in blocks.indices) {
-//            val lines = blocks[i].lines
-//            for (j in lines.indices) {
-//                val elements = lines[j].elements
-//                for (k in elements.indices) {
-//                    elements[k].text
-//                }
-//            }
-//        }
-//    }
-//
-//
-//    val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.typewriter)
-//    var inputImage = InputImage.fromBitmap(bitmap, 0)
-//    val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-//    recognizer.process(inputImage)
-//        .addOnSuccessListener {
-//            Log.e("addOnSuccessListener", texts.toString())
-//            texts?.let { it1 -> processTextRecognitionResult(it1) }
-//        }
-//
-//    Log.e("TextRecognition.getClient ", texts.toString())
 
 
     val textMeasurer = rememberTextMeasurer()
@@ -171,49 +151,42 @@ fun MyApp(modifier: Modifier = Modifier) {
                     .fillMaxWidth(),
                 contentScale = ContentScale.FillBounds
             )
-            Canvas(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                val layoutResult = textMeasurer.measure(
-                    text = AnnotatedString("Hello!"),
-                )
+            if (Texts != null) {
+                Canvas(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    val blocks = Texts!!.textBlocks
+                    val lines = blocks[0].lines
+                    val elements = lines[0].elements
+                    val element = elements[0]
+                    Log.e("element",element.toString())
+                    val rect = RectF(element!!.boundingBox)
 
-                val topLeft = Offset(350f, 550f)
-                val textSize = layoutResult.size.toSize()
+                    val layoutResult = textMeasurer.measure(
+                        text = AnnotatedString(element.text),
+                    )
+                    val topLeft = Offset(350f, 550f)
+                    val textSize = layoutResult.size.toSize()
 
-                // 绘制矩形边框
-                drawRect(
-                    color = Color.Blue,
-                    topLeft = topLeft,
-                    size = Size(
-                        width = textSize.width + 30f * 2,
-                        height = textSize.height + 30f * 2
-                    ),
-                    style = Stroke(width = 3f)
-                )
 
-                // 绘制文字
-                drawText(
-                    textLayoutResult = layoutResult,
-                    color = Color.Blue,
-                    topLeft = topLeft
-                )
+                    drawRect(
+                        color = Color.Blue,
+                        topLeft = topLeft,
+                        size = Size(
+                            width = textSize.width + 30f * 2,
+                            height = textSize.height + 30f * 2
+                        ),
+                        style = Stroke(width = 3f)
+                    )
+
+                    drawText(
+                        textLayoutResult = layoutResult,
+                        color = Color.Blue,
+                        topLeft = topLeft
+                    )
+                }
             }
-//                    .drawWithCache {
-//                        val path = Path()
-//                        path.moveTo(350f, 550f)
-//                        path.lineTo(350f, 600f)
-//                        path.lineTo(450f, 600f)
-//                        path.lineTo(450f,550f)
-//                        path.close()
-//                        onDrawBehind {
-//                            drawPath(path, Color.Blue, style = Stroke(width = 2f))
-//                        }
-//                    }
-//            ) {translate(left = 350f, top = 550f) {
-//                drawText(textMeasurer, "Hello")}
-//            }
         }
 
         Surface(
