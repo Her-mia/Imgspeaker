@@ -154,7 +154,6 @@ fun MyApp(modifier: Modifier = Modifier) {
             if (Texts != null) {
                 Canvas(
                     modifier = Modifier
-                        .fillMaxSize()
                 ) {
                     val blocks = Texts!!.textBlocks
                     val lines = blocks[0].lines
@@ -166,16 +165,16 @@ fun MyApp(modifier: Modifier = Modifier) {
                     val layoutResult = textMeasurer.measure(
                         text = AnnotatedString(element.text),
                     )
-                    val topLeft = Offset(350f, 550f)
-                    val textSize = layoutResult.size.toSize()
+                    val topLeft = Offset(rect.left,rect.top)
+                    Log.e("Rectleft", rect.left.toString())
 
 
                     drawRect(
                         color = Color.Blue,
-                        topLeft = topLeft,
+                        topLeft=topLeft,
                         size = Size(
-                            width = textSize.width + 30f * 2,
-                            height = textSize.height + 30f * 2
+                            width =rect.width(),
+                            height = rect.height()
                         ),
                         style = Stroke(width = 3f)
                     )
