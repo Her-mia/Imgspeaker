@@ -36,12 +36,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
@@ -91,7 +93,7 @@ fun MyApp(modifier: Modifier = Modifier) {
     }
 
     var imageUri by remember { mutableStateOf<Uri?>(null) }
-    var Texts by remember { mutableStateOf<Text?>(null) }
+    var recotexts by remember { mutableStateOf<Text?>(null) }
     var tmpUri: Uri? = null
     var image = painterResource(R.drawable.typewriter)
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -119,7 +121,7 @@ fun MyApp(modifier: Modifier = Modifier) {
 //            }
 //        }
 
-
+//        recotexts = null
         val inputImage = InputImage.fromFilePath(context, uri)
         Log.e("uri", uri.toString())
         Log.e("inputImage", inputImage.toString())
@@ -127,7 +129,7 @@ fun MyApp(modifier: Modifier = Modifier) {
         recognizer.process(inputImage)
             .addOnSuccessListener { texts ->
                 Log.e("addOnSuccessListener", texts.toString())
-                Texts = texts
+                recotexts = texts
             }
             .addOnFailureListener { e ->
                 e.printStackTrace()
@@ -151,32 +153,34 @@ fun MyApp(modifier: Modifier = Modifier) {
                     .fillMaxWidth(),
                 contentScale = ContentScale.FillBounds
             )
-            if (Texts != null) {
-                Canvas(
-                    modifier = Modifier
-                ) {
-                    val blocks = Texts!!.textBlocks
+
+//            if (recotexts != null) {
+            Canvas(
+                modifier = Modifier
+            ) {
+                if (recotexts != null) {
+                    val blocks = recotexts!!.textBlocks
                     val lines = blocks[0].lines
                     val elements = lines[0].elements
                     val element = elements[0]
-                    Log.e("element",element.toString())
+                    Log.e("element", element.toString())
                     val rect = RectF(element!!.boundingBox)
 
                     val layoutResult = textMeasurer.measure(
                         text = AnnotatedString(element.text),
                     )
-                    val topLeft = Offset(rect.left,rect.top)
+                    val topLeft = Offset(rect.left * 135 / 287, (rect.top) * 959 / 2040)
                     Log.e("Rectleft", rect.left.toString())
 
 
                     drawRect(
                         color = Color.Blue,
-                        topLeft=topLeft,
+                        topLeft = topLeft,
                         size = Size(
-                            width =rect.width(),
+                            width = rect.width(),
                             height = rect.height()
                         ),
-                        style = Stroke(width = 3f)
+                        style = Stroke(width = 5f)
                     )
 
                     drawText(
