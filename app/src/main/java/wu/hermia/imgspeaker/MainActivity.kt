@@ -160,34 +160,43 @@ fun MyApp(modifier: Modifier = Modifier) {
             ) {
                 if (recotexts != null) {
                     val blocks = recotexts!!.textBlocks
-                    val lines = blocks[0].lines
-                    val elements = lines[0].elements
-                    val element = elements[0]
-                    Log.e("element", element.toString())
-                    val rect = RectF(element!!.boundingBox)
+                    for (i in blocks.indices) {
+                        val lines = blocks[i].lines
+                        for (j in lines.indices) {
+                            val elements = lines[j].elements
+                            for (k in elements.indices) {
+                                val element = elements[k]
+//                                val lines = blocks[0].lines
+//                                val elements = lines[0].elements
+//                                val element = elements[0]
+                                Log.e("element", element.toString())
+                                val rect = RectF(element!!.boundingBox)
 
-                    val layoutResult = textMeasurer.measure(
-                        text = AnnotatedString(element.text),
-                    )
-                    val topLeft = Offset(rect.left * 135 / 287, (rect.top) * 959 / 2040)
-                    Log.e("Rectleft", rect.left.toString())
+                                val layoutResult = textMeasurer.measure(
+                                    text = AnnotatedString(element.text),
+                                )
+                                val topLeft = Offset(rect.left * 135 / 287, (rect.top) * 959 / 2040)
+                                Log.e("Rectleft", rect.left.toString())
 
 
-                    drawRect(
-                        color = Color.Blue,
-                        topLeft = topLeft,
-                        size = Size(
-                            width = rect.width(),
-                            height = rect.height()
-                        ),
-                        style = Stroke(width = 5f)
-                    )
+                                drawRect(
+                                    color = Color.Blue,
+                                    topLeft = topLeft,
+                                    size = Size(
+                                        width = rect.width(),
+                                        height = rect.height()
+                                    ),
+                                    style = Stroke(width = 5f)
+                                )
 
-                    drawText(
-                        textLayoutResult = layoutResult,
-                        color = Color.Blue,
-                        topLeft = topLeft
-                    )
+                                drawText(
+                                    textLayoutResult = layoutResult,
+                                    color = Color.Blue,
+                                    topLeft = topLeft
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
