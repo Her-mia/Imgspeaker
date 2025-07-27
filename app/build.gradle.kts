@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation("io.coil-kt:coil-compose:2.4.0")
     implementation(libs.play.services.mlkit.text.recognition.common)
+    implementation(libs.play.services.mlkit.text.recognition.chinese)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

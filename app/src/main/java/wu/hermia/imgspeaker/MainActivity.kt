@@ -52,7 +52,9 @@ import coil.compose.rememberAsyncImagePainter
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.TextRecognizer
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import com.google.mlkit.vision.text.chinese.ChineseTextRecognizerOptions
 import wu.hermia.imgspeaker.ui.theme.ImgspeakerTheme
 
 class MainActivity : ComponentActivity() {
@@ -125,14 +127,17 @@ fun MyApp(modifier: Modifier = Modifier) {
         val inputImage = InputImage.fromFilePath(context, uri)
         Log.e("uri", uri.toString())
         Log.e("inputImage", inputImage.toString())
-        val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+        val recognizer = TextRecognition.getClient(ChineseTextRecognizerOptions.Builder().build())
         recognizer.process(inputImage)
+//        val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+//        recognizer.process(inputImage)
             .addOnSuccessListener { texts ->
                 Log.e("addOnSuccessListener", texts.toString())
                 recotexts = texts
             }
             .addOnFailureListener { e ->
                 e.printStackTrace()
+                Log.e("Failed",recognizer.toString())
             }
 
     }
