@@ -127,8 +127,9 @@ fun MyApp(modifier: Modifier = Modifier) {
         val inputImage = InputImage.fromFilePath(context, uri)
         Log.e("uri", uri.toString())
         Log.e("inputImage", inputImage.toString())
-        val recognizer = TextRecognition.getClient(ChineseTextRecognizerOptions.Builder().build())
+        val recognizer: TextRecognizer = TextRecognition.getClient(ChineseTextRecognizerOptions.Builder().build())
         recognizer.process(inputImage)
+            // com.google.mlkit.vision.text.internal.zzn@cec05d3
 //        val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 //        recognizer.process(inputImage)
             .addOnSuccessListener { texts ->
