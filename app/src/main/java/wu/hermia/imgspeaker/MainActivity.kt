@@ -127,7 +127,8 @@ fun MyApp(modifier: Modifier = Modifier) {
         val inputImage = InputImage.fromFilePath(context, uri)
         Log.e("uri", uri.toString())
         Log.e("inputImage", inputImage.toString())
-        val recognizer: TextRecognizer = TextRecognition.getClient(ChineseTextRecognizerOptions.Builder().build())
+        val recognizer: TextRecognizer =
+            TextRecognition.getClient(ChineseTextRecognizerOptions.Builder().build())
         recognizer.process(inputImage)
             // com.google.mlkit.vision.text.internal.zzn@cec05d3
 //        val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
@@ -138,7 +139,7 @@ fun MyApp(modifier: Modifier = Modifier) {
             }
             .addOnFailureListener { e ->
                 e.printStackTrace()
-                Log.e("Failed",recognizer.toString())
+                Log.e("Failed", recognizer.toString())
             }
 
     }
@@ -189,8 +190,8 @@ fun MyApp(modifier: Modifier = Modifier) {
                                     color = Color.Blue,
                                     topLeft = topLeft,
                                     size = Size(
-                                        width = rect.width(),
-                                        height = rect.height()
+                                        width = rect.width() * 135 / 287,
+                                        height = rect.height()* 959 / 2040
                                     ),
                                     style = Stroke(width = 5f)
                                 )
