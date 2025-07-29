@@ -55,12 +55,16 @@ import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.google.mlkit.vision.text.chinese.ChineseTextRecognizerOptions
+import android.speech.tts.TextToSpeech
+import java.util.Locale
 import wu.hermia.imgspeaker.ui.theme.ImgspeakerTheme
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity() , TextToSpeech.OnInitListener{
+    var tts: TextToSpeech? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        tts = TextToSpeech(this, this)
         enableEdgeToEdge()
         setContent {
             ImgspeakerTheme {
@@ -74,12 +78,28 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            tts?.language = Locale.PRC
+            android.util.Log.d("TTS", "TTS 初始化成功")
+        } else {
+            android.util.Log.e("TTS", "TTS 初始化失败")
+        }
+    }
+
+    override fun onDestroy() {
+        tts?.stop()
+        tts?.shutdown()
+        super.onDestroy()
+    }
 }
 
 
 @Composable
 fun MyApp(modifier: Modifier = Modifier) {
     val context = LocalContext.current
+    Log.e("context",context.toString())
     fun createImageUri(): Uri? {
         val contentValues = ContentValues().apply {
             put(
@@ -96,6 +116,7 @@ fun MyApp(modifier: Modifier = Modifier) {
 
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var recotexts by remember { mutableStateOf<Text?>(null) }
+    var ReadText by remember { mutableStateOf<String?>(null) }
     var tmpUri: Uri? = null
     var image = painterResource(R.drawable.typewriter)
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -145,6 +166,7 @@ fun MyApp(modifier: Modifier = Modifier) {
     }
 
 
+
     val textMeasurer = rememberTextMeasurer()
     Column(modifier) {
         Box(
@@ -161,10 +183,10 @@ fun MyApp(modifier: Modifier = Modifier) {
                 contentScale = ContentScale.FillBounds
             )
 
-//            if (recotexts != null) {
+
             Canvas(
                 modifier = Modifier
-            ) {
+            ) { ReadText=""
                 if (recotexts != null) {
                     val blocks = recotexts!!.textBlocks
                     for (i in blocks.indices) {
@@ -173,12 +195,9 @@ fun MyApp(modifier: Modifier = Modifier) {
                             val elements = lines[j].elements
                             for (k in elements.indices) {
                                 val element = elements[k]
-//                                val lines = blocks[0].lines
-//                                val elements = lines[0].elements
-//                                val element = elements[0]
                                 Log.e("element", element.toString())
                                 val rect = RectF(element!!.boundingBox)
-
+                                ReadText += element.text
                                 val layoutResult = textMeasurer.measure(
                                     text = AnnotatedString(element.text),
                                 )
@@ -186,12 +205,13 @@ fun MyApp(modifier: Modifier = Modifier) {
                                 Log.e("Rectleft", rect.left.toString())
 
 
+
                                 drawRect(
                                     color = Color.Blue,
                                     topLeft = topLeft,
                                     size = Size(
                                         width = rect.width() * 135 / 287,
-                                        height = rect.height()* 959 / 2040
+                                        height = rect.height() * 959 / 2040
                                     ),
                                     style = Stroke(width = 5f)
                                 )
@@ -232,7 +252,9 @@ fun MyApp(modifier: Modifier = Modifier) {
                     Text("Camera")
                 }
                 ElevatedButton(onClick = {
-
+                    val activity = context as? MainActivity
+                    val tts = activity?.tts
+                    tts?.speak(ReadText, TextToSpeech.QUEUE_FLUSH, null, null)
                 }) {
                     Text("Read")
                 }
