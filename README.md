@@ -18,4 +18,4 @@ Clone the progect to Android Studio and run.
      The recognized Chinese text is read out loud using a built-in voice engine. You can customize the speech speed and pitch for optimal listening.
 
 ### Video
-[![Watch the video](https://img.youtube.com/vi/视频ID/hqdefault.jpg)]([https://www.youtube.com/watch?v=视频ID](https://youtube.com/shorts/OxM237Mye50))
+[![Watch the video](https://img.youtube.com/vi/OxM237Mye50/hqdefault.jpg)](https://www.youtube.com/watch?v=OxM237Mye50)
