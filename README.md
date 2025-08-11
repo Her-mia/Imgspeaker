@@ -25,5 +25,5 @@ The GIF below is a silent, shortened version of the video above, providing a qui
 
 
 ![Kotlin](https://img.shields.io/badge/Kotlin-Android-blue)
-![OCR](https://img.shields.io/badge/OCR-Tesseract-green)
+![ML Kit OCR](https://img.shields.io/badge/ML%20Kit-OCR-blue?logo=google)
 ![TTS](https://img.shields.io/badge/TTS-Google-yellow)
