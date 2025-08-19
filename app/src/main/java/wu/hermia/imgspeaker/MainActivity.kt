@@ -228,14 +228,14 @@ fun MyApp(modifier: Modifier = Modifier) {
 
                     }
                 }) {
-                    Text("Camera")
+                    Text("相机")
                 }
                 ElevatedButton(onClick = {
                     val activity = context as? MainActivity
                     val tts = activity?.tts
                     tts?.speak(readText, TextToSpeech.QUEUE_FLUSH, null, null)
                 }) {
-                    Text("Read")
+                    Text("朗读")
                 }
             }
         }
